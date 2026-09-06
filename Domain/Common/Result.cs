@@ -1,4 +1,4 @@
-namespace repeating.Domain.Common;
+namespace Domain.Common;
 
 public class Result<T> where T : class
 {

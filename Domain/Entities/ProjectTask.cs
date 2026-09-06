@@ -1,6 +1,6 @@
-using repeating.Domain.Common;
+using Domain.Common;
 
-namespace repeating.Domain.Entities;
+namespace Domain.Entities;
 
 public class ProjectTask
 {

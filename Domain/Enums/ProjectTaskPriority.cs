@@ -1,4 +1,4 @@
-namespace repeating.Domain;
+namespace Domain;
 
 public enum ProjectTaskPriority
 {

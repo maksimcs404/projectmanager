@@ -4,6 +4,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Api", "Api\Api.csproj", "{5
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domain", "Domain\Domain.csproj", "{BFFF64F5-0768-410C-9505-5B87FAA1933F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Application", "Application\Application.csproj", "{5925DC4B-08FD-4936-936A-538F15216415}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure", "Infrastructure\Infrastructure.csproj", "{E0A56690-DD08-4BD6-8663-342C0C8955BB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +22,13 @@ Global
 		{BFFF64F5-0768-410C-9505-5B87FAA1933F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BFFF64F5-0768-410C-9505-5B87FAA1933F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BFFF64F5-0768-410C-9505-5B87FAA1933F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5925DC4B-08FD-4936-936A-538F15216415}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5925DC4B-08FD-4936-936A-538F15216415}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5925DC4B-08FD-4936-936A-538F15216415}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5925DC4B-08FD-4936-936A-538F15216415}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E0A56690-DD08-4BD6-8663-342C0C8955BB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E0A56690-DD08-4BD6-8663-342C0C8955BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E0A56690-DD08-4BD6-8663-342C0C8955BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E0A56690-DD08-4BD6-8663-342C0C8955BB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
