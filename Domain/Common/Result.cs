@@ -6,7 +6,7 @@ public class Result<T> where T : class
     public bool IsSuccess { get; set; }
     public string? Message { get; set; } = string.Empty;
 
-    private Result(T data, bool isSuccess, string message)
+    private Result(T? data, bool isSuccess, string message)
     {
         Data = data;
         IsSuccess = isSuccess;

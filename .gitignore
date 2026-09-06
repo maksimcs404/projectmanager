@@ -9,3 +9,4 @@ Api/Properties/
 **/obj/
 **/bin/
 **/Properties/
+Infrastructure/Migrations/
