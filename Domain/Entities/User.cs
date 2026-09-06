@@ -11,8 +11,8 @@ public class User
     public string Role { get; set; } = "User";
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-    // public ICollection<Project> OwnedProjects { get; set; } = new List<Project>();
-    // public ICollection<ProjectTask> AssignedTasks { get; set; } = new List<ProjectTask>();
+    public ICollection<Project> OwnedProjects { get; set; } = new List<Project>();
+    public ICollection<ProjectTask> AssignedTasks { get; set; } = new List<ProjectTask>();
     // public ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
 
     private User(string name, string email, string password, string role)
