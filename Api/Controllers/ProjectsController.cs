@@ -1,5 +1,6 @@
-using Application.Common.Interfaces;
 using Application.DTOs;
+using Application.Features.Projects;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.IdentityModel.Tokens.Jwt;
@@ -12,17 +13,17 @@ namespace Api.Controllers;
 [Route("[controller]")]
 public class ProjectsController : ControllerBase
 {
-    private readonly IProjectService _projectService;
+    private readonly ISender _sender;
 
-    public ProjectsController(IProjectService projectService)
+    public ProjectsController(ISender sender)
     {
-        _projectService = projectService;
+        _sender = sender;
     }
 
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetById(Guid id)
     {
-        var project = await _projectService.GetByIdAsync(id);
+        var project = await _sender.Send(new GetProjectByIdQuery(id));
         if (project != null && !CanManage(project.OwnerId))
             return Forbid();
 
@@ -35,7 +36,7 @@ public class ProjectsController : ControllerBase
         if (!CanManage(ownerId))
             return Forbid();
 
-        return Ok(await _projectService.GetByOwnerIdAsync(ownerId));
+        return Ok(await _sender.Send(new GetProjectsByOwnerQuery(ownerId)));
     }
 
     [HttpPost]
@@ -44,8 +45,7 @@ public class ProjectsController : ControllerBase
         if (!IsAdmin())
             request.OwnerId = GetCurrentUserId() ?? Guid.Empty;
 
-        var result = await _projectService.CreateAsync(request);
-
+        var result = await _sender.Send(new CreateProjectCommand(request));
         if (!result.IsSuccess || result.Data == null)
             return BadRequest(result.Message);
 
@@ -60,15 +60,14 @@ public class ProjectsController : ControllerBase
         Guid id,
         UpdateProjectRequest request)
     {
-        var project = await _projectService.GetByIdAsync(id);
+        var project = await _sender.Send(new GetProjectByIdQuery(id));
         if (project == null)
             return NotFound();
 
         if (!CanManage(project.OwnerId))
             return Forbid();
 
-        var result = await _projectService.UpdateAsync(id, request);
-
+        var result = await _sender.Send(new UpdateProjectCommand(id, request));
         if (!result.IsSuccess)
             return BadRequest(result.Message);
 
@@ -78,14 +77,14 @@ public class ProjectsController : ControllerBase
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Delete(Guid id)
     {
-        var project = await _projectService.GetByIdAsync(id);
+        var project = await _sender.Send(new GetProjectByIdQuery(id));
         if (project == null)
             return NotFound();
 
         if (!CanManage(project.OwnerId))
             return Forbid();
 
-        var deleted = await _projectService.DeleteAsync(id);
+        var deleted = await _sender.Send(new DeleteProjectCommand(id));
         return deleted ? NoContent() : NotFound();
     }
 

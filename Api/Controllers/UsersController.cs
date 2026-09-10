@@ -1,5 +1,6 @@
-using Application.Common.Interfaces;
 using Application.DTOs;
+using Application.Features.Users;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.IdentityModel.Tokens.Jwt;
@@ -12,18 +13,18 @@ namespace Api.Controllers;
 [Route("[controller]")]
 public class UsersController : ControllerBase
 {
-    private readonly IUserService _userService;
+    private readonly ISender _sender;
 
-    public UsersController(IUserService userService)
+    public UsersController(ISender sender)
     {
-        _userService = userService;
+        _sender = sender;
     }
 
     [HttpGet]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> GetAll()
     {
-        return Ok(await _userService.GetAllAsync());
+        return Ok(await _sender.Send(new GetUsersQuery()));
     }
 
     [HttpGet("{id:guid}")]
@@ -32,7 +33,7 @@ public class UsersController : ControllerBase
         if (!IsAdmin() && GetCurrentUserId() != id)
             return Forbid();
 
-        var user = await _userService.GetByIdAsync(id);
+        var user = await _sender.Send(new GetUserByIdQuery(id));
         return user == null ? NotFound() : Ok(user);
     }
 
@@ -46,15 +47,14 @@ public class UsersController : ControllerBase
 
         if (!IsAdmin())
         {
-            var currentUser = await _userService.GetByIdAsync(id);
+            var currentUser = await _sender.Send(new GetUserByIdQuery(id));
             if (currentUser == null)
                 return NotFound();
 
             request.Role = currentUser.Role;
         }
 
-        var result = await _userService.UpdateAsync(id, request);
-
+        var result = await _sender.Send(new UpdateUserCommand(id, request));
         if (!result.IsSuccess)
             return BadRequest(result.Message);
 
@@ -65,7 +65,7 @@ public class UsersController : ControllerBase
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Delete(Guid id)
     {
-        var deleted = await _userService.DeleteAsync(id);
+        var deleted = await _sender.Send(new DeleteUserCommand(id));
         return deleted ? NoContent() : NotFound();
     }
 

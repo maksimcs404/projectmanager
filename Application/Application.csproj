@@ -8,6 +8,7 @@
 
     <ItemGroup>
       <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.11" />
+      <PackageReference Include="MediatR" Version="12.5.0" />
     </ItemGroup>
 
     <ItemGroup>
@@ -17,6 +18,7 @@
     <ItemGroup>
       <Folder Include="Auth\" />
       <Folder Include="Common\" />
+      <Folder Include="Features\" />
     </ItemGroup>
 
 </Project>

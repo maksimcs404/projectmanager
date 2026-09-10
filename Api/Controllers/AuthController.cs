@@ -1,7 +1,6 @@
-using Application;
-using Application.Common.Interfaces;
 using Application.DTOs;
-using Domain.Entities;
+using Application.Features.Auth.Commands;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers;
@@ -10,94 +9,40 @@ namespace Api.Controllers;
 [Route("[controller]")]
 public class AuthController : ControllerBase
 {
-    private readonly IUserService _userService;
-    private readonly IUserRepository _userRepository;
-    private readonly IRefreshTokenRepository _refreshTokenRepository;
-    private readonly IApplicationDbContext _context;
-    private readonly IJwtProvider _jwtProvider;
-    private readonly IPasswordHasher _passwordHasher;
+    private readonly ISender _sender;
 
-    public AuthController(
-        IUserService userService,
-        IUserRepository userRepository,
-        IRefreshTokenRepository refreshTokenRepository,
-        IApplicationDbContext context,
-        IJwtProvider jwtProvider,
-        IPasswordHasher passwordHasher)
+    public AuthController(ISender sender)
     {
-        _userService = userService;
-        _userRepository = userRepository;
-        _refreshTokenRepository = refreshTokenRepository;
-        _context = context;
-        _jwtProvider = jwtProvider;
-        _passwordHasher = passwordHasher;
+        _sender = sender;
     }
 
     [HttpPost("register")]
     public async Task<IActionResult> Register(CreateUserRequest request)
     {
-        var result = await _userService.CreateAsync(request);
+        var result = await _sender.Send(new RegisterCommand(request));
         if (!result.IsSuccess || result.Data == null)
             return BadRequest(result.Message);
 
-        var user = await _userRepository.GetByEmailAsync(request.Email);
-        if (user == null)
-            return BadRequest("User was not created.");
-
-        return Ok(await CreateAuthResponse(user));
+        return Ok(result.Data);
     }
 
     [HttpPost("login")]
     public async Task<IActionResult> Login(LoginRequest request)
     {
-        var user = await _userRepository.GetByEmailAsync(request.Email);
-        if (user == null ||
-            !_passwordHasher.Verify(request.Password, user.PasswordHash))
-            return Unauthorized("Email or password is incorrect.");
+        var result = await _sender.Send(new LoginCommand(request));
+        if (!result.IsSuccess || result.Data == null)
+            return Unauthorized(result.Message);
 
-        return Ok(await CreateAuthResponse(user));
+        return Ok(result.Data);
     }
 
     [HttpPost("refresh")]
     public async Task<IActionResult> Refresh(RefreshTokenRequest request)
     {
-        var refreshToken = await _refreshTokenRepository.GetByTokenAsync(
-            request.RefreshToken);
+        var result = await _sender.Send(new RefreshTokenCommand(request));
+        if (!result.IsSuccess || result.Data == null)
+            return Unauthorized(result.Message);
 
-        if (refreshToken == null ||
-            !refreshToken.IsActive ||
-            refreshToken.Expires <= DateTime.UtcNow ||
-            refreshToken.User == null)
-        {
-            return Unauthorized("Refresh token is invalid.");
-        }
-
-        refreshToken.IsActive = false;
-        _refreshTokenRepository.Update(refreshToken);
-
-        return Ok(await CreateAuthResponse(refreshToken.User));
-    }
-
-    private async Task<AuthResponse> CreateAuthResponse(User user)
-    {
-        var accessToken = _jwtProvider.GenerateAccessToken(user);
-        var refreshToken = _jwtProvider.GenerateRefreshToken();
-
-        await _refreshTokenRepository.AddAsync(new RefreshToken
-        {
-            Token = refreshToken,
-            UserId = user.Id,
-            User = user,
-            Expires = DateTime.UtcNow.AddDays(7),
-            IsActive = true
-        });
-
-        await _context.SaveChangesAsync();
-
-        return new AuthResponse
-        {
-            AccessToken = accessToken,
-            RefreshToken = refreshToken
-        };
+        return Ok(result.Data);
     }
 }

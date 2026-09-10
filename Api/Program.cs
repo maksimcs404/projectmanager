@@ -1,12 +1,16 @@
 using System.Text;
 using Api.Exceptions;
+using Application.Features.Auth.Commands;
 using Infrastructure.Db;
+using MediatR;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.OpenApi;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddInfrastructureServices(builder.Configuration);
+builder.Services.AddMediatR(configuration =>
+    configuration.RegisterServicesFromAssembly(typeof(RegisterCommand).Assembly));
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
